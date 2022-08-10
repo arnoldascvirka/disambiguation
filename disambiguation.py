@@ -38,9 +38,9 @@ class Game:
 
     def game_loop(self):
         while self.playing:
-            FPS = 500
+
             clock = pygame.time.Clock()
-            clock.tick(FPS)
+            clock.tick()
             self.get_events()
             self.update()
             self.render()
@@ -91,7 +91,7 @@ class Game:
             ),
             (0, 0),
         )
-        pygame.display.flip()
+        pygame.display.update()
 
     def draw_text(self, surface, text, color, x, y):
         text_surface = self.font.render(text, True, color)

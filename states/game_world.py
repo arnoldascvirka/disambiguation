@@ -14,7 +14,6 @@ from states.state import State
 from states.pause_menu import PauseMenu
 from states.resources import Resources
 from states.dock import Dock
-from states.fuel import Fuel
 from states.navigation import Navigation
 
 
@@ -47,22 +46,18 @@ class Game_World(State):
             return pygame.draw.rect(self.screen, (255, 0, 0), (x, y, sizeX, sizeY))
 
         self.m1 = draw_gui(40, 35, 40, 50)
-        self.m2 = draw_gui(82, 35, 40, 50)
-        self.m3 = draw_gui(124, 35, 60, 50)
-        self.m4 = draw_gui(186, 35, 50, 50)
+        self.m2 = draw_gui(82, 35, 60, 50)
+        self.m3 = draw_gui(144, 35, 50, 50)
 
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONUP:
                 if self.m1.collidepoint(pygame.mouse.get_pos()):
-                    new_state = Fuel(self.game)
-                    new_state.enter_state()
-                if self.m2.collidepoint(pygame.mouse.get_pos()):
                     new_state = Navigation(self.game)
                     new_state.enter_state()
-                if self.m3.collidepoint(pygame.mouse.get_pos()):
+                if self.m2.collidepoint(pygame.mouse.get_pos()):
                     new_state = Resources(self.game)
                     new_state.enter_state()
-                if self.m4.collidepoint(pygame.mouse.get_pos()):
+                if self.m3.collidepoint(pygame.mouse.get_pos()):
                     new_state = Dock(self.game)
                     new_state.enter_state()
 
@@ -116,6 +111,5 @@ class Game_World(State):
             )
             if particle[2] <= 0:
                 particles.remove(particle)
-
         # Draw stuff
         display.blit(minimenu, (20, 20))
