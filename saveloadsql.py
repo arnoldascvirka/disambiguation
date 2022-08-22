@@ -1,7 +1,7 @@
 ###################################################################################################
 #
 # sql00.py
-# Sqlalchemy database implementation.
+# Sqlalchemy database implementation for the saving and loading.
 #
 # Arnoldas Cvirka 2022 August 4th
 #
@@ -10,30 +10,30 @@
 from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 
-engine = create_engine("sqlite:///train.db")
+engine = create_engine("sqlite:///space.db")
 Base = declarative_base()
 
 #########################
 
 
-class Train(Base):
-    __tablename__ = "Train"
+class Space(Base):
+    __tablename__ = "Space"
     id = Column(Integer, primary_key=True)
+    ship = Column("Ship", String)
     petroleum = Column("Petroleum", Integer)
-    melonium = Column("Melonium", Integer)
-    perks = Column("Perks", String)
     currency = Column("Currency", Integer)
     dock = Column("Dock", String)
 
-    def __init__(self, petroleum, melonium, perks, currency, dock):
+    def __init__(self, ship, petroleum, currency, dock):
+        self.ship = ship
         self.petroleum = petroleum
-        self.melonium = melonium
-        self.perks = perks
         self.currency = currency
         self.dock = dock
 
     def __repr__(self):
-        return f"{self.id}: {self.petroleum}, {self.melonium}, {self.perks}, {self.currency}, {self.dock}."
+        return (
+            f"{self.id}: {self.ship}, {self.petroleum},  {self.currency}, {self.dock}."
+        )
 
 
 Base.metadata.create_all(engine)

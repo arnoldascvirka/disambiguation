@@ -8,9 +8,18 @@
 ###################################################################################################
 # Import Libraries
 import pygame, os, math, random
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 # Import modules
 from states.state import State
+from gridsql import Grid
+
+# Create engine
+engine = create_engine("sqlite:///grid.db")
+Session = sessionmaker(bind=engine)
+session = Session()
+
 
 # fmt: off
 class Star(State):
@@ -23,6 +32,11 @@ class Star(State):
         self.tiles = math.ceil(game.SCREEN_WIDTH / self.bg_width) + 1
         self.wid = random.randint(200, 800)
         self.hei = random.randint(200, 500)
+        self.menu = pygame.image.load(os.path.join(self.game.assets_dir, "starmenu.png"))
+        with open('assets/names.txt') as d:
+            lines = d.readlines()
+            self.f = random.choice(lines)
+        
         # Declare planet stuff
         self.angle = 0
         planet1 = pygame.image.load(os.path.join(self.game.assets_dir, "planet1.png")).convert_alpha()
@@ -38,7 +52,7 @@ class Star(State):
         self.moon1c = random.getrandbits(1)
         self.moon2c = random.getrandbits(1)
         self.moon3c = random.getrandbits(1)
-        
+        self.moons = 0
         
     def renderPlanets(self, surf, pos, originPos, angle):
         #Declare planet vars.
@@ -60,7 +74,6 @@ class Star(State):
         rotated_image = pygame.transform.rotate(image, angle)
         rotated_image_rect = rotated_image.get_rect(center = rotated_image_center)
         surf.blit(rotated_image, rotated_image_rect)
-
         
 # fmt: on
     def update(self, actions):
@@ -70,14 +83,6 @@ class Star(State):
 
     def render(self, display):
         display.fill((255, 255, 255))
-        self.game.draw_text(
-            display,
-            "Save game:",
-            (0, 0, 0),
-            self.game.SCREEN_WIDTH / 2 - 400,
-            self.game.SCREEN_HEIGHT / 2 - 200,
-        )
-
         self.scroll -= 5
         if abs(self.scroll) > self.bg_width:
             self.scroll = 0
@@ -90,11 +95,13 @@ class Star(State):
         
         self.renderPlanets(display, pos, (w / 2, h / 2), self.angle)
         self.angle += 1
-
-
         if self.moon1c == 1:
             self.renderMoons(display, self.moon1, pos, (self.wid, self.hei), self.angle)
         if self.moon2c == 1:
             self.renderMoons(display, self.moon2, pos, (self.wid, self.hei), self.angle)
         if self.moon3c == 1:
             self.renderMoons(display, self.moon3, pos, (self.wid, self.hei), self.angle)
+
+        display.blit(self.menu, (0, 0))
+        self.game.draw_text(display, f"Planet: {self.f}", (0, 0, 0), 180, 120)
+        self.game.draw_text(display, f"Moons: {self.moons}", (0, 0, 0), 170, 200)

@@ -8,10 +8,19 @@
 ###################################################################################################
 # Import Libraries
 import pygame, os
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
 
 # Import modules
 from states.state import State
 from states.cluster import Star
+from gridsql import Grid
+
+# Create engine
+engine = create_engine("sqlite:///grid.db")
+Session = sessionmaker(bind=engine)
+session = Session()
 
 
 class Navigation(State):
@@ -62,7 +71,7 @@ class Navigation(State):
             for column in range(25):
                 grid[row].append(0)
 
-        # Set row 1, cell 5 to one. (Remember rows and column numbers start at zero.)
+        # Set row 1, cell 5 to one.
         grid[1][5] = 1
 
         for event in pygame.event.get():
@@ -76,6 +85,11 @@ class Navigation(State):
                 # Set that location to one
                 grid[row][column] = 1
                 print("Click ", pos, "Grid coordinates: ", row, column)
+
+                projects = Grid(column, row)
+                session.add(projects)
+                session.commit()
+
                 new_state = Star(self.game)
                 new_state.enter_state()
 
