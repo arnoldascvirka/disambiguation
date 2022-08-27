@@ -27,6 +27,7 @@ class Navigation(State):
     def __init__(self, game):
         self.game = game
         State.__init__(self, game)
+        self.column = None
 
     def update(self, actions):
         if actions["action2"]:
@@ -85,11 +86,16 @@ class Navigation(State):
                 # Set that location to one
                 grid[row][column] = 1
                 print("Click ", pos, "Grid coordinates: ", row, column)
-
-                projects = Grid(column, row)
-                session.add(projects)
-                session.commit()
-
+                obj = session.query(Grid).all()
+                if (
+                    session.query(Grid.row).filter_by(row=row)
+                    and session.query(Grid.column).filter_by(column=column) is None
+                ):
+                    moons = None
+                    name = None
+                    projects = Grid(column, row, moons, name)
+                    session.add(projects)
+                    session.commit()
                 new_state = Star(self.game)
                 new_state.enter_state()
 

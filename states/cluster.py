@@ -11,6 +11,7 @@ import pygame, os, math, random
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+
 # Import modules
 from states.state import State
 from gridsql import Grid
@@ -20,12 +21,12 @@ engine = create_engine("sqlite:///grid.db")
 Session = sessionmaker(bind=engine)
 session = Session()
 
-
 # fmt: off
 class Star(State):
     def __init__(self, game):
         self.game = game
         State.__init__(self, game)
+        self.obj = session.query(Grid).filter_by(row=self.row).filter_by(column=game.column)
         self.scroll = 0
         self.bg = pygame.image.load(os.path.join(self.game.assets_dir, "bg.png"))
         self.bg_width = self.bg.get_width()
@@ -33,10 +34,17 @@ class Star(State):
         self.wid = random.randint(200, 800)
         self.hei = random.randint(200, 500)
         self.menu = pygame.image.load(os.path.join(self.game.assets_dir, "starmenu.png"))
-        with open('assets/names.txt') as d:
-            lines = d.readlines()
-            self.f = random.choice(lines)
         
+        if self.obj.name == None:
+            with open('assets/names.txt') as d:
+                lines = d.readlines()
+                self.f = random.choice(lines)
+                
+                self.obj.name = self.f
+                session.commit()
+        
+
+            
         # Declare planet stuff
         self.angle = 0
         planet1 = pygame.image.load(os.path.join(self.game.assets_dir, "planet1.png")).convert_alpha()
@@ -49,10 +57,6 @@ class Star(State):
         self.moon1 = pygame.image.load("assets/moon1.png").convert_alpha()
         self.moon2 = pygame.image.load("assets/moon2.png").convert_alpha()
         self.moon3 = pygame.image.load("assets/moon3.png").convert_alpha()
-        self.moon1c = random.getrandbits(1)
-        self.moon2c = random.getrandbits(1)
-        self.moon3c = random.getrandbits(1)
-        self.moons = 0
         
     def renderPlanets(self, surf, pos, originPos, angle):
         #Declare planet vars.
@@ -95,13 +99,32 @@ class Star(State):
         
         self.renderPlanets(display, pos, (w / 2, h / 2), self.angle)
         self.angle += 1
-        if self.moon1c == 1:
-            self.renderMoons(display, self.moon1, pos, (self.wid, self.hei), self.angle)
-        if self.moon2c == 1:
-            self.renderMoons(display, self.moon2, pos, (self.wid, self.hei), self.angle)
-        if self.moon3c == 1:
-            self.renderMoons(display, self.moon3, pos, (self.wid, self.hei), self.angle)
+        
 
+        if self.obj.moons == None:
+            self.moons = random.randint(0, 3)
+            if self.moons >= 1:
+                self.renderMoons(display, self.moon1, pos, (self.wid, self.hei), self.angle)
+            elif self.moons >= 2:
+                self.renderMoons(display, self.moon2, pos, (self.wid, self.hei), self.angle)
+            elif self.moons == 3:
+                self.renderMoons(display, self.moon3, pos, (self.wid, self.hei), self.angle)
+            
+            
+            self.obj.moons = self.moons
+            session.commit()
+            
+            
+        if self.obj.moons is not None:
+            if self.obj.moons >= 1:
+                self.renderMoons(display, self.moon1, pos, (self.wid, self.hei), self.angle)
+            elif self.obj.moons >= 2:
+                self.renderMoons(display, self.moon2, pos, (self.wid, self.hei), self.angle)
+            elif self.obj.moons == 3:
+                self.renderMoons(display, self.moon3, pos, (self.wid, self.hei), self.angle)
+        
+        
+        
         display.blit(self.menu, (0, 0))
-        self.game.draw_text(display, f"Planet: {self.f}", (0, 0, 0), 180, 120)
-        self.game.draw_text(display, f"Moons: {self.moons}", (0, 0, 0), 170, 200)
+        self.game.draw_text(display, f"Planet: {self.obj.name}", (0, 0, 0), 180, 120)
+        self.game.draw_text(display, f"Moons: {self.obj.moons}", (0, 0, 0), 170, 200)
