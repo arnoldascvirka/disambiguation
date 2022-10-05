@@ -26,7 +26,7 @@ class Star(State):
     def __init__(self, game):
         self.game = game
         State.__init__(self, game)
-        self.obj = session.query(Grid).filter_by(row=self.row).filter_by(column=game.column)
+        self.obj = session.query(Grid).filter_by(row=game.row).filter_by(column=game.column)
         self.scroll = 0
         self.bg = pygame.image.load(os.path.join(self.game.assets_dir, "bg.png"))
         self.bg_width = self.bg.get_width()

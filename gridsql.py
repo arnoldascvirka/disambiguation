@@ -6,7 +6,7 @@
 # Arnoldas Cvirka 2022 August 4th
 #
 ###################################################################################################
-# Import libarries
+# Import libraries
 from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 
